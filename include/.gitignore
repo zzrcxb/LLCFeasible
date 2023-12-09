@@ -1,0 +1,3 @@
+# exclude some 3rd party headers from modules
+
+ptedit_header.h

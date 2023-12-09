@@ -1,0 +1,3 @@
+[submodule "extern/PTEditor"]
+	path = extern/PTEditor
+	url = https://github.com/misc0110/PTEditor.git
