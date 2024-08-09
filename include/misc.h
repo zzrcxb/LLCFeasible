@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 static ALWAYS_INLINE u8 *mmap_private(void *addr, size_t size) {
-    u8 *ptr = mmap(addr, size, PROT_READ | PROT_WRITE,
+    u8 *ptr = (u8 *)mmap(addr, size, PROT_READ | PROT_WRITE,
                    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (ptr == MAP_FAILED)
         return NULL;
@@ -29,7 +29,7 @@ static ALWAYS_INLINE u8 *mmap_private_init(void *addr, size_t size, u8 init) {
 }
 
 static ALWAYS_INLINE u8 *mmap_shared(void *addr, size_t size) {
-    u8 *ptr = mmap(addr, size, PROT_READ | PROT_WRITE,
+    u8 *ptr = (u8 *)mmap(addr, size, PROT_READ | PROT_WRITE,
                    MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     if (ptr == MAP_FAILED)
         return NULL;
@@ -53,7 +53,7 @@ static ALWAYS_INLINE void *calloc_shared(size_t nelem, size_t size) {
 }
 
 static ALWAYS_INLINE u8 *mmap_exec(void *addr, u64 size) {
-    u8 *ptr = mmap(addr, size, PROT_READ | PROT_WRITE | PROT_EXEC,
+    u8 *ptr = (u8 *)mmap(addr, size, PROT_READ | PROT_WRITE | PROT_EXEC,
                    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (ptr == MAP_FAILED) {
         return NULL;
@@ -70,7 +70,7 @@ static ALWAYS_INLINE u8 *mmap_exec_init(void *addr, u64 size, u8 i) {
 }
 
 static ALWAYS_INLINE u8 *mmap_huge_private(void *addr, size_t size) {
-    u8 *ptr = mmap((void *)addr, size, PROT_READ | PROT_WRITE,
+    u8 *ptr = (u8 *)mmap((void *)addr, size, PROT_READ | PROT_WRITE,
                    MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, -1, 0);
     if (ptr == MAP_FAILED)
         return NULL;
@@ -86,7 +86,7 @@ static ALWAYS_INLINE u8 *mmap_huge_private_init(void *addr, size_t size, u8 i) {
 }
 
 static ALWAYS_INLINE u8 *mmap_huge_shared(void *addr, size_t size) {
-    u8 *ptr = mmap((void *)addr, size, PROT_READ | PROT_WRITE,
+    u8 *ptr = (u8 *)mmap((void *)addr, size, PROT_READ | PROT_WRITE,
                    MAP_SHARED | MAP_ANONYMOUS | MAP_HUGETLB, -1, 0);
     if (ptr == MAP_FAILED)
         return NULL;
@@ -116,7 +116,7 @@ static __always_inline u8 *mmap_file(void *addr, const char *filename,
     if (writable) {
         prot |= PROT_WRITE;
     }
-    u8 *ptr = mmap(addr, stats.st_size, prot, MAP_SHARED, fd, 0);
+    u8 *ptr = (u8 *)mmap(addr, stats.st_size, prot, MAP_SHARED, fd, 0);
     if (ptr == MAP_FAILED) {
         return NULL;
     } else {

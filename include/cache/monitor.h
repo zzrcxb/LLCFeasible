@@ -52,6 +52,15 @@ i64 probe_skx_sf_evset_para_asm(EVSet *evset, u64 *end_tsc, u32 *aux) {
                          "mov (%%r10), %%r11\n\t"
                          "mov 88(%0), %%r10\n\t"
                          "mov (%%r10), %%r11\n\t" // 12
+                         // ICELAKE
+                        "mov 96(%0), %%r10\n\t"
+                        "mov (%%r10), %%r11\n\t"
+                        "mov 104(%0), %%r10\n\t"
+                        "mov (%%r10), %%r11\n\t"
+                        "mov 112(%0), %%r10\n\t"
+                        "mov (%%r10), %%r11\n\t"
+                        "mov 120(%0), %%r10\n\t"
+                        "mov (%%r10), %%r11\n\t"  // 16
                          ::"r"(addrs)
                          : "r10", "r11", "memory");
     *end_tsc = _timer_end_aux(aux);

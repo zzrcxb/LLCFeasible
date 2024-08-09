@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.0)
+# cmake_minimum_required(VERSION 3.0)
 
-project(uarch-toolkit VERSION 2.0)
+# project(uarch-toolkit VERSION 2.0)
 
 include("CMakeHelper.cmake")
 include("CMakeExtern.cmake")

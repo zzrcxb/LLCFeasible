@@ -48,17 +48,17 @@
 
 #define _info(...)                                                             \
     do {                                                                       \
-        fprintf(stderr, "INFO: "__VA_ARGS__);                                  \
+        fprintf(stderr, "INFO: " __VA_ARGS__);                                  \
     } while (0)
 
 #define _warn(...)                                                             \
     do {                                                                       \
-        fprintf(stderr, "WARN: "__VA_ARGS__);                                  \
+        fprintf(stderr, "WARN: " __VA_ARGS__);                                  \
     } while (0)
 
 #define _error(...)                                                            \
     do {                                                                       \
-        fprintf(stderr, "ERROR: "__VA_ARGS__);                                 \
+        fprintf(stderr, "ERROR: " __VA_ARGS__);                                 \
     } while (0)
 
 #define _sort(_base, _cnt, _esize, _cmp)                                       \

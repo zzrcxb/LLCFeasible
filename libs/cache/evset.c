@@ -1216,7 +1216,7 @@ void default_skx_sf_evset_build_config(EVBuildConfig *config, EVSet *l1d_ev,
                                          .retry_timeout = 1000,
                                          .max_backtrack = 20,
                                          .slack = 2,
-                                         .extra_cong = 1,
+                                         .extra_cong = SF_ASSOC - detected_l3->n_ways, // ICELAKE
                                          .ret_partial = false,
                                          .prelim_test = false,
                                          .need_skx_sf_ext = false};

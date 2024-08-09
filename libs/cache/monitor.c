@@ -46,9 +46,16 @@ void prime_evchain_prime_scope(evchain *ptr) {
                          "mfence;"
                          "movq (%%rcx), %%rcx;"
                          "movq (%%rcx), %%rcx;"
-                         :
-                         : "c"(ptr)
-                         : "cc", "memory");
+                        // ICELAKE
+                        "mfence;"
+                        "movq (%%rcx), %%rcx;"
+                        "movq (%%rcx), %%rcx;"
+                        "mfence;"
+                        "movq (%%rcx), %%rcx;"
+                        "movq (%%rcx), %%rcx;"
+                        :
+                        : "c"(ptr)
+                        : "cc", "memory");
 }
 
 void prime_skx_sf_evset_ps_sense(evchain *chain1, evchain *chain2,
@@ -95,9 +102,16 @@ static void skx_sf_prime_ps(evchain *ptr) {
                          "mfence;"
                          "movq (%%rcx), %%rcx;"
                          "movq (%%rcx), %%rcx;"
-                         :
-                         : "c"(ptr)
-                         : "cc", "memory");
+                        // ICELAKE
+                        "mfence;"
+                        "movq (%%rcx), %%rcx;"
+                        "movq (%%rcx), %%rcx;"
+                        "mfence;"
+                        "movq (%%rcx), %%rcx;"
+                        "movq (%%rcx), %%rcx;"
+                        :
+                        : "c"(ptr)
+                        : "cc", "memory");
 }
 
 typedef i64 (*probe_func)(EVSet *evset, u64 *end_tsc, u32 *aux);

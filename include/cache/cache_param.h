@@ -56,9 +56,9 @@ extern cache_param *detected_l1d, *detected_l1i, *detected_l2, *detected_l3;
 
 int detect_cpu_caches(cpu_caches *caches);
 
-cache_param *find_cpu_cache(cpu_caches *this, u32 level, cache_type type);
+cache_param *find_cpu_cache(cpu_caches *_this, u32 level, cache_type type);
 
-void find_common_caches(cpu_caches *this, cache_param **l1i, cache_param **l1d,
+void find_common_caches(cpu_caches *_this, cache_param **l1i, cache_param **l1d,
                         cache_param **l2, cache_param **l3);
 
 void set_cache_num_slices(cache_param *param, u32 n_slices);
