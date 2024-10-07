@@ -115,11 +115,13 @@ EVSet *prepare_evsets() {
         return NULL;
     }
 
-    ptr_threshold = calibrate_chase_probe_lat(target, sf_evset, array_repeat,
-                                              l2_repeat, .2);
-    if (ptr_threshold <= 0) {
-        _error("Failed to calibrate ptr access lat!\n");
-        return NULL;
+    if (ptr_chase) {
+        ptr_threshold = calibrate_chase_probe_lat(target, sf_evset, array_repeat,
+                                                l2_repeat, .2);
+        if (ptr_threshold <= 0) {
+            _error("Failed to calibrate ptr access lat!\n");
+            return NULL;
+        }
     }
 
     if (measure_performance(sf_evset)) {
