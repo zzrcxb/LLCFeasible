@@ -59,6 +59,49 @@ i64 probe_skx_sf_evset_para_asm(EVSet *evset, u64 *end_tsc, u32 *aux) {
 }
 
 static __always_inline
+i64 probe_icx_sf_evset_para_asm(EVSet *evset, u64 *end_tsc, u32 *aux) {
+    u8 **addrs = evset->addrs;
+    _force_addr_calc(addrs);
+    u64 start = _timer_start();
+    __asm__ __volatile__("mov (%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t"
+                         "mov 8(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t"
+                         "mov 16(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t"
+                         "mov 24(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t" // 4
+                         "mov 32(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t"
+                         "mov 40(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t"
+                         "mov 48(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t"
+                         "mov 56(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t" // 8
+                         "mov 64(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t"
+                         "mov 72(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t"
+                         "mov 80(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t"
+                         "mov 88(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t" // 12
+                         "mov 96(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t"
+                         "mov 104(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t"
+                         "mov 112(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t"
+                         "mov 120(%0), %%r10\n\t"
+                         "mov (%%r10), %%r11\n\t" // 16
+                         ::"r"(addrs)
+                         : "r10", "r11", "memory");
+    *end_tsc = _timer_end_aux(aux);
+    return *end_tsc - start;
+}
+
+static __always_inline
 i64 probe_skx_sf_evset_para_noasm(EVSet *evset, u64 *end_tsc, u32 *aux) {
     u8 **addrs = evset->addrs;
     _force_addr_calc(addrs);
@@ -79,7 +122,13 @@ i64 probe_skx_sf_evset_ptr_chase(EVSet *evset, u64 *end_tsc, u32 *aux) {
 
 static __always_inline
 i64 probe_skx_sf_evset_para(EVSet *evset, u64 *end_tsc, u32 *aux) {
+#if defined (SKYLAKE) || defined(CASCADE)
+    return probe_skx_sf_evset_para_asm(evset, end_tsc, aux);
+#elif defined (ICELAKE)
+    return probe_icx_sf_evset_para_asm(evset, end_tsc, aux);
+#else
     return probe_skx_sf_evset_para_noasm(evset, end_tsc, aux);
+#endif
 }
 
 void prime_skx_sf_evset_para(EVSet *evset, u32 arr_repeat, u32 l2_repeat);
