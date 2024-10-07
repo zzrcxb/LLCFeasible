@@ -2,6 +2,7 @@
 #include "cache/access_seq.h"
 #include "cache/evchain.h"
 #include "sync.h"
+#include <stdlib.h>
 
 void prime_skx_sf_evset_para(EVSet *evset, u32 arr_repeat, u32 l2_repeat) {
     EVTestConfig *tconf = &evset->config->test_config;
@@ -27,6 +28,7 @@ void prime_skx_sf_evset_para(EVSet *evset, u32 arr_repeat, u32 l2_repeat) {
 }
 
 // from the PRIME+SCOPE implementation
+#if defined (SKYLAKE) || defined (CASCADE)
 void prime_evchain_prime_scope(evchain *ptr) {
     __asm__ __volatile__("mfence;"
                          "movq (%%rcx), %%rcx;"
@@ -50,6 +52,42 @@ void prime_evchain_prime_scope(evchain *ptr) {
                          : "c"(ptr)
                          : "cc", "memory");
 }
+#elif defined (ICELAKE)
+void prime_evchain_prime_scope(evchain *ptr) {
+    __asm__ __volatile__("mfence;"
+                         "movq (%%rcx), %%rcx;"
+                         "movq (%%rcx), %%rcx;"
+                         "mfence;"
+                         "movq (%%rcx), %%rcx;"
+                         "movq (%%rcx), %%rcx;"
+                         "mfence;"
+                         "movq (%%rcx), %%rcx;"
+                         "movq (%%rcx), %%rcx;"
+                         "mfence;"
+                         "movq (%%rcx), %%rcx;"
+                         "movq (%%rcx), %%rcx;"
+                         "mfence;"
+                         "movq (%%rcx), %%rcx;"
+                         "movq (%%rcx), %%rcx;"
+                         "mfence;"
+                         "movq (%%rcx), %%rcx;"
+                         "movq (%%rcx), %%rcx;"
+                         "mfence;"
+                         "movq (%%rcx), %%rcx;"
+                         "movq (%%rcx), %%rcx;"
+                         "mfence;"
+                         "movq (%%rcx), %%rcx;"
+                         "movq (%%rcx), %%rcx;"
+                         :
+                         : "c"(ptr)
+                         : "cc", "memory");
+}
+#else
+void prime_evchain_prime_scope(evchain *ptr) {
+    _error("Prime+Scope's prime chain is not implemented!\n");
+    exit(EXIT_FAILURE);
+}
+#endif
 
 void prime_skx_sf_evset_ps_sense(evchain *chain1, evchain *chain2,
                                  bool prime_sense, EVSet *lower) {
