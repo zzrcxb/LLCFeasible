@@ -91,6 +91,7 @@ EVSet *prepare_evsets() {
 
     EVBuildConfig sf_config;
     default_skx_sf_evset_build_config(&sf_config, NULL, l2_evset, &hctrl);
+    sf_config.algo_config.extra_cong = SF_ASSOC - detected_l3->n_ways;
 
     EVSet *sf_evset = build_skx_sf_EVSet(target, &sf_config, NULL);
     helper_sf_evset = build_skx_sf_EVSet(target, &sf_config, NULL);
