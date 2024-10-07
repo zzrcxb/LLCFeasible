@@ -79,7 +79,7 @@ i64 probe_skx_sf_evset_ptr_chase(EVSet *evset, u64 *end_tsc, u32 *aux) {
 
 static __always_inline
 i64 probe_skx_sf_evset_para(EVSet *evset, u64 *end_tsc, u32 *aux) {
-    return probe_skx_sf_evset_para_asm(evset, end_tsc, aux);
+    return probe_skx_sf_evset_para_noasm(evset, end_tsc, aux);
 }
 
 void prime_skx_sf_evset_para(EVSet *evset, u32 arr_repeat, u32 l2_repeat);
