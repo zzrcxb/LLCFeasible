@@ -15,14 +15,13 @@ static helper_thread_ctrl hctrl;
 static i64 para_threshold = 0, ptr_threshold = 0, spurious_cnt = 0;
 static EVSet *helper_sf_evset = NULL;
 static evchain *sf_chain1 = NULL, *sf_chain2 = NULL;
-static u32 extra_sf_cong = 0; // extra_cong wrt. SF!
 
 static bool check_and_set_sf_evset(EVSet *evset) {
-    if (!evset || evset->size < SF_ASSOC + extra_sf_cong) {
+    if (!evset || evset->size < SF_ASSOC) {
         _error("Failed to build sf evset\n");
         return false;
     }
-    evset->size = SF_ASSOC + extra_sf_cong;
+    evset->size = SF_ASSOC;
 
     EVTestRes tres = precise_evset_test_alt(target, evset);
     if (tres != EV_POS) {
