@@ -228,7 +228,6 @@ int main(int argc, char **argv) {
 
     if (has_hugepage) {
         page = mmap_huge_shared_init(NULL, PAGE_SIZE, 'a');
-        _info("Test target huge page: %d\n", test_page_continuity(page));
     } else {
         page = mmap_shared_init(NULL, PAGE_SIZE, 'a');
     }
