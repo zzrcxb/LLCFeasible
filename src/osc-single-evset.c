@@ -228,6 +228,8 @@ int main(int argc, char **argv) {
 
     if (has_hugepage) {
         page = mmap_huge_shared_init(NULL, PAGE_SIZE, 'a');
+        l2_filter = false;
+        _info("Disabling L2 filtering when using hugepages\n");
     } else {
         page = mmap_shared_init(NULL, PAGE_SIZE, 'a');
     }
