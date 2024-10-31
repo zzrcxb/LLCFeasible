@@ -63,7 +63,8 @@ EVBuffer *evbuffer_new(cache_param *cache, EVCandsConfig *config) {
 
     if (__has_hugepage) {
         u64 n_cands = uncertainty * cache->n_ways * config->scaling;
-        u64 cands_per_page = HUGE_PAGE_SIZE / cache_congruent_stride(cache);
+        u64 cands_per_page =
+            _max(1, HUGE_PAGE_SIZE / cache_congruent_stride(cache));
         n_pages = n_cands / cands_per_page;
         if (n_cands % cands_per_page) {
             n_pages += 1;
