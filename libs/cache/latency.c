@@ -123,8 +123,9 @@ i64 detect_dram_latency(u32 repeats) {
 
     _maccess(target);
     for (i = 0; i < repeats; i++) {
-        _rdtscp_aux(&aux_before);
         _clflush(target);
+        _mfence();
+        _rdtscp_aux(&aux_before);
         i64 lat = _time_maccess(target);
         _rdtscp_aux(&aux_after);
         if (aux_after == aux_before) {
