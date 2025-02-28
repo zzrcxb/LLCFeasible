@@ -159,6 +159,7 @@ static ALWAYS_INLINE u64 _timer_warmup(void) {
         uint64_t __tsc;                                                        \
         /* make sure that address computation is done before _timer_start */   \
         _force_addr_calc(__ptr);                                               \
+        _timer_warmup();                                                       \
         __tsc = _timer_start();                                                \
         ACTION(__ptr);                                                         \
         _timer_end() - __tsc;                                                  \
@@ -170,6 +171,7 @@ static ALWAYS_INLINE u64 _timer_warmup(void) {
         uint64_t __tsc;                                                        \
         /* make sure that address computation is done before _timer_start */   \
         _force_addr_calc(__ptr);                                               \
+        _timer_warmup();                                                       \
         __tsc = _timer_start();                                                \
         ACTION(__ptr);                                                         \
         (end_tsc) = _timer_end_aux(&(end_aux));                                \
