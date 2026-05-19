@@ -13,7 +13,7 @@ static const bool _dbg = false;
         }                                                                      \
     } while (0)
 
-struct evset_stats _evset_stats;
+__thread struct evset_stats _evset_stats;
 
 EVBuildConfig def_l1d_ev_config, def_l2_ev_config;
 

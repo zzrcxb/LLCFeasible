@@ -132,8 +132,12 @@ If `<number of offsets>` is set to `0`,
 the program constructs eviction sets for every LLC/SF set in the system;
 otherwise, the program randomly selects `<number of offsets>` offsets
 and construct eviction sets for LLC/SF sets at those offsets.
-This program takes the same optional arguments as the `osc-single-evset`, except for having no `--hugepage` option and an additional `-L`/`--total-run-time-limit` option
-that controls how long the program can run in minutes.
+This program takes the same optional arguments as the `osc-single-evset`, except for having no `--hugepage` option and two additional options:
+`-L`/`--total-run-time-limit` controls how long the program can run in minutes,
+and `-P`/`--parallel-construction` controls LLC/SF construction parallelism.
+The `-P` option takes an even number of cores, using one construction thread
+and one helper thread per pair; use `0` to select the largest even number of
+cores reported by the system.
 
 ### Outputs
 Here's a segmented sample output from running

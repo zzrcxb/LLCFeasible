@@ -41,7 +41,7 @@ struct evset_stats {
     u64 bctr_duras[MAX_BACKTRACK_REC], useful_bctr_duras[MAX_BACKTRACK_REC];
 };
 
-extern struct evset_stats _evset_stats;
+extern __thread struct evset_stats _evset_stats;
 
 static inline void inc_retry(u64 retry) {
     if (retry < MAX_RETRY_REC - 1) {
