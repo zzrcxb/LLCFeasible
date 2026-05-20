@@ -13,6 +13,7 @@ static size_t extra_cong = 1;
 static size_t max_tries = 10, max_backtrack = 20, max_timeout = 0;
 static size_t total_runtime_limit = 0; // in minutes
 static bool l2_filter = true, single_thread = false;
+static bool no_pin = false;
 static size_t n_para = 0;
 static size_t num_l2sets;
 static helper_thread_ctrl hctrl;
@@ -437,7 +438,7 @@ static void *para_build_worker_main(void *arg) {
 
     reset_evset_stats();
 
-    if (!set_proc_affinity(main_core)) {
+    if (!no_pin && !set_proc_affinity(main_core)) {
         _warn("Failed to pin construction thread %u to core %u\n",
               worker->pair_idx, main_core);
     }
@@ -451,7 +452,7 @@ static void *para_build_worker_main(void *arg) {
         return NULL;
     }
 
-    if (!set_thread_affinity(worker->hctrl.pid, helper_core)) {
+    if (!no_pin && !set_thread_affinity(worker->hctrl.pid, helper_core)) {
         _warn("Failed to pin helper thread %u to core %u\n",
               worker->pair_idx, helper_core);
     }
@@ -459,8 +460,10 @@ static void *para_build_worker_main(void *arg) {
     sf_config.test_config.hctrl = &worker->hctrl;
     sf_config.test_config_alt.hctrl = &worker->hctrl;
 
-    _info("Pair %u: construction core %u; helper core %u\n",
-          worker->pair_idx, main_core, helper_core);
+    if (!no_pin) {
+        _info("Pair %u: construction core %u; helper core %u\n",
+              worker->pair_idx, main_core, helper_core);
+    }
 
     for (u32 c = 0; next_offset_work(ctx, &c);) {
         u32 n = ctx->idxs[c];
@@ -809,6 +812,7 @@ int main(int argc, char **argv) {
         {"algorithm", required_argument, NULL, 'A'},
         {"total-run-time-limit", required_argument, NULL, 'L'}, // in minutes
         {"parallel-construction", required_argument, NULL, 'P'},
+        {"no-pin", no_argument, NULL, 0},
         {0, 0, 0, 0}
     };
 
@@ -817,6 +821,11 @@ int main(int argc, char **argv) {
     while ((opt = getopt_long(argc, argv, "fsC:B:R:T:A:L:P:", long_opts,
                               &opt_idx)) != -1) {
         switch (opt) {
+            case 0:
+                if (strcmp(long_opts[opt_idx].name, "no-pin") == 0) {
+                    no_pin = true;
+                }
+                break;
             case 'f': l2_filter = false; break;
             case 's': single_thread = true; break;
             case 'C': cands_scaling = strtod(optarg, NULL); break;
