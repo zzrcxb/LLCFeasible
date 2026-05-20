@@ -137,7 +137,7 @@ This program takes the same optional arguments as the `osc-single-evset`, except
 and `-P`/`--parallel-construction` controls LLC/SF construction parallelism.
 The `-P` option takes an even number of cores, using one construction thread
 and one helper thread per pair; use `0` to select the largest even number of
-cores reported by the system.
+non-SMT cores available to the process.
 
 ### Outputs
 Here's a segmented sample output from running

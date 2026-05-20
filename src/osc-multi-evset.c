@@ -192,10 +192,65 @@ static u32 n_cores(void) {
     return n > 0 ? (u32)n : 0;
 }
 
+static u32 smt_id(u32 cpu) {
+    char path[128];
+    u32 id = cpu;
+    FILE *fp;
+
+    snprintf(path, sizeof(path),
+             "/sys/devices/system/cpu/cpu%u/topology/thread_siblings_list",
+             cpu);
+    fp = fopen(path, "r");
+    if (fp) {
+        if (fscanf(fp, "%u", &id) != 1) id = cpu;
+        fclose(fp);
+    }
+    return id;
+}
+
+static u32 pick_cores(u32 *cores, u32 n_needed) {
+    cpu_set_t allowed;
+    bool check_allowed = sched_getaffinity(0, sizeof(allowed), &allowed) == 0;
+    u32 n_cpu = _min(n_cores(), CPU_SETSIZE);
+    u32 ids[CPU_SETSIZE];
+    u32 n = 0;
+
+    for (u32 cpu = 0; cpu < n_cpu; cpu++) {
+        bool seen = false;
+        u32 id;
+
+        if (check_allowed && !CPU_ISSET(cpu, &allowed)) continue;
+
+        id = smt_id(cpu);
+        for (u32 i = 0; i < n; i++) {
+            if (ids[i] == id) {
+                seen = true;
+                break;
+            }
+        }
+        if (seen) continue;
+
+        ids[n] = id;
+        if (cores) cores[n] = cpu;
+        n++;
+        if (n_needed && n == n_needed) break;
+    }
+
+    return n;
+}
+
 static bool set_n_para(size_t n) {
     if (n < 2 || n % 2) {
         _error("Parallel construction requires an even number of cores >= 2; "
                "each construction thread needs one helper thread\n");
+        return false;
+    }
+
+    u32 n_avail = pick_cores(NULL, 0);
+    if (n > n_avail) {
+        _error("Need %lu non-SMT cores for parallel construction; only %u "
+               "available\n",
+               n, n_avail);
         return false;
     }
 
@@ -207,6 +262,7 @@ typedef struct {
     EVSet ****sfevset_complex;
     EVSet ***l2evsets;
     EVCands ***sf_cands;
+    u32 *cores;
     u32 *idxs;
     u32 n_offsets;
     u32 next_offset;
@@ -376,8 +432,8 @@ static void *para_build_worker_main(void *arg) {
     para_build_ctx *ctx = worker->ctx;
     EVBuildConfig sf_config = ctx->base_config;
     size_t l3_cnt;
-    u32 main_core = worker->pair_idx * 2;
-    u32 helper_core = main_core + 1;
+    u32 main_core = ctx->cores[worker->pair_idx * 2];
+    u32 helper_core = ctx->cores[worker->pair_idx * 2 + 1];
 
     reset_evset_stats();
 
@@ -455,10 +511,24 @@ static bool build_sf_evsets_parallel(EVSet ****sfevset_complex,
         n_pairs = n_offset;
     }
 
+    u32 n_pinned = n_pairs * 2;
+    u32 *cores = _calloc(n_pinned, sizeof(*cores));
+    if (!cores) {
+        _error("Failed to allocate core list\n");
+        return false;
+    }
+
+    if (pick_cores(cores, n_pinned) != n_pinned) {
+        _error("Need %u non-SMT cores for parallel construction\n", n_pinned);
+        _free(cores);
+        return false;
+    }
+
     para_build_ctx ctx = {
         .sfevset_complex = sfevset_complex,
         .l2evsets = l2evsets,
         .sf_cands = sf_cands,
+        .cores = cores,
         .idxs = idxs,
         .n_offsets = n_offset,
         .next_offset = 0,
@@ -478,6 +548,7 @@ static bool build_sf_evsets_parallel(EVSet ****sfevset_complex,
         _error("Failed to allocate parallel construction workers\n");
         _free(threads);
         _free(workers);
+        _free(cores);
         pthread_mutex_destroy(&ctx.work_lock);
         return false;
     }
@@ -506,6 +577,7 @@ static bool build_sf_evsets_parallel(EVSet ****sfevset_complex,
     bool success = !ctx.failed;
     _free(threads);
     _free(workers);
+    _free(cores);
     pthread_mutex_destroy(&ctx.work_lock);
     return success;
 }
@@ -762,7 +834,7 @@ int main(int argc, char **argv) {
                     return EXIT_FAILURE;
                 }
                 if (n == 0) {
-                    n = n_cores();
+                    n = pick_cores(NULL, 0);
                     if (n % 2) n--;
                 }
                 if (!set_n_para(n)) {
